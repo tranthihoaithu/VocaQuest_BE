@@ -37,9 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.vocabulary.apps.VocaConfig',
-    'apps.lessons.apps.LessonsConfig',
-    'apps.users.apps.UsersConfig',
+    'learn_voca.apps.LearnVocaConfig',
+    'ckeditor',
+    'ckeditor_uploader',
+    'rest_framework',
+    'drf_yasg',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +53,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8081",
 ]
 
 ROOT_URLCONF = 'VocaQuest.urls'
@@ -87,7 +95,8 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'learn_voca.user'
+
 
 
 # Password validation
@@ -129,6 +138,8 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = '%s/vocabulary/static' %BASE_DIR
 # MEDIA_URL là đường dẫn URL để truy cập các tệp phương tiện
 MEDIA_URL = '/media/'
+# CKEditor upload path
+CKEDITOR_UPLOAD_PATH = 'uploads/ckeditor/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
