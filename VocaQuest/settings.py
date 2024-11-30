@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,12 +26,13 @@ SECRET_KEY = 'django-insecure-7j-yo7i_n3kj07v3a@m58z(d!1^!!oqh9vdo^d890n=tt4*v19
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,7 +45,30 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'corsheaders',
+    'rest_framework_simplejwt',
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "VocaQuest",  # Tiêu đề trên trình duyệt
+    "site_header": "Quản lý hệ thống VocaQuest",  # Tiêu đề trong Admin
+    "site_brand": "VocaQuest",          # Tên thương hiệu
+    "welcome_sign": "Chào mừng bạn đến với hệ thống quản lý",
+    "show_sidebar": True,              # Hiển thị sidebar
+    "navigation_expanded": True,       # Sidebar mở rộng mặc định
+    "hide_apps": ["auth"],             # Ẩn ứng dụng không cần thiết
+    "hide_models": ["auth.user"],      # Ẩn model không cần thiết
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,7 +82,10 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "http://192.168.1.100:8000",
     "http://localhost:8081",
+    "exp://192.168.1.37:8081",
+    "http://192.168.1.37:8081",
 ]
 
 ROOT_URLCONF = 'VocaQuest.urls'
@@ -133,9 +161,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-# MEDIA_ROOT = '%s/vocabulary/static' %BASE_DIR
-MEDIA_ROOT = '%s/vocabulary/static' %BASE_DIR
+STATIC_URL = '/static/'
+# MEDIA_ROOT = '%s/vocabulary/media' %BASE_DIR
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL là đường dẫn URL để truy cập các tệp phương tiện
 MEDIA_URL = '/media/'
 # CKEditor upload path

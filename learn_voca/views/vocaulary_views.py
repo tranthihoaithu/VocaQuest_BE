@@ -114,3 +114,51 @@ class VocabularyReviewView(APIView):
             return Response({
                 "message": "You still have words to learn."
             }, status=status.HTTP_400_BAD_REQUEST)
+
+# tạo bai kiem tra
+class CreateTestView(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        lesson_id = request.data.get('lesson_id')
+
+        lesson = Lesson.objects.get(id=lesson_id)
+        test = Test.objects.create(user=user, lesson=lesson)
+
+        # Lấy các từ vựng trong bài học và tạo câu hỏi
+        vocabularies = lesson.topics.vocabularies.all()  # Từ vựng liên kết với chủ đề trong bài học
+        for vocabulary in vocabularies:
+            question = Question.objects.create(question_text=f"What is the meaning of {vocabulary.word}?", question_type='MC')
+            question.voca.add(vocabulary)
+            test.questions.add(question)
+
+        return Response({'message': 'Test created successfully', 'test_id': test.id})
+
+# nop cau tra loi tinh diem
+class SubmitAnswerView(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        question_id = request.data.get('question_id')
+        selected_answer = request.data.get('selected_answer')
+
+        question = Question.objects.get(id=question_id)
+        correct_answer = question.correct_answer
+        is_correct = selected_answer == correct_answer
+
+        # Lưu câu trả lời của người dùng
+        UserAnswer.objects.create(user=user, question=question, selected_answer=selected_answer, is_correct=is_correct)
+
+        return Response({'message': 'Answer submitted', 'is_correct': is_correct})
+# theo doi tien trinh hoc tap
+class ProgressView(APIView):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        progress = UserProgress.objects.filter(user=user).select_related('vocabulary')
+        data = [
+            {
+                'vocabulary': p.vocabulary.word,
+                'stage': p.stage,
+                'last_reviewed': p.last_reviewed
+            } for p in progress
+        ]
+        return Response(data)
+
