@@ -80,7 +80,6 @@ class Migration(migrations.Migration):
                 ('pronunciation', models.CharField(max_length=100)),
                 ('audio', models.FileField(unique=True, upload_to='audio/')),
                 ('example_sentence', models.CharField(max_length=255)),
-                ('stage', models.IntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('topic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='vocabularies', to='learn_voca.topic')),

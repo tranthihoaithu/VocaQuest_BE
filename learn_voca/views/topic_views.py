@@ -10,14 +10,21 @@ from ..serializers.vocabulary_serializers import VocabulariesSerializer
 class TopicDetailView(APIView):
     def get(self, request, topic_id):
         try:
+            # Lấy topic theo id
             topic = Topic.objects.get(pk=topic_id)
-        except Lesson.DoesNotExist:
+        except Topic.DoesNotExist:
             return Response({'detail': 'Topic not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Lấy dữ liệu về topic
         serializer = TopicSerializer(topic)
-        # Lấy danh sách các từ vựng trong topic
+
+        # Lấy danh sách từ vựng trong topic
         vocabularies = Vocabulary.objects.filter(topic=topic)
+
+        # Sử dụng serializer để chuyển đổi danh sách từ vựng thành JSON
         vocabulary_serializer = VocabulariesSerializer(vocabularies, many=True)
+
+        # Trả về thông tin topic và từ vựng
         return Response({
             'topic': serializer.data,
             'vocabularies': vocabulary_serializer.data

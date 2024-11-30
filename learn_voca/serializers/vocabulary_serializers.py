@@ -10,14 +10,14 @@ class VocabulariesSerializer(ModelSerializer):
 class UserProgressSerializer(ModelSerializer):
     class Meta:
         model = UserProgress
-        fields = ['id', 'user', 'vocabulary', 'stage', 'last_reviewed']
+        fields = ['id', 'user', 'vocabulary', 'last_reviewed']
 
 class QuestionSerializer(ModelSerializer):
     voca = VocabulariesSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ['id', 'question_type', 'question_text', 'voca', 'choices', 'audio_url']
+        fields = ['id', 'question_type', 'question_text', 'voca','satge', 'choices', 'audio_url']
 
     def get_choices(self, obj):
         # Lấy tất cả các lựa chọn cho câu hỏi trắc nghiệm

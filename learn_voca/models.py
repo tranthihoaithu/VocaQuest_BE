@@ -2,17 +2,49 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-class User(AbstractUser):
-    avatar = models.ImageField(upload_to='uploads/%Y/%m')
+
 
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
     created_date = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='uploads/%Y/%m')
     updated_date = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
-    user = models.ManyToManyField(User,related_name='lessons')
     def __str__(self):
         return self.title
+
+    def get_progress_and_total(self, user):
+        """
+        Lấy tiến độ (progress) và tổng số từ vựng (total) của bài học này đối với một user.
+        """
+        # Lấy tất cả từ vựng liên quan đến bài học
+        total_vocab = Vocabulary.objects.filter(topic__lessons=self).count()
+        # Tính số từ đã học (stage > 0)
+        learned_vocab = UserProgress.objects.filter(
+            vocabulary__topic__lessons=self,
+            user=user,
+            stage__gt=0  # Đã học nghĩa là stage > 0
+        ).count()
+        # Tính phần trăm tiến độ
+        progress = (learned_vocab / total_vocab * 100) if total_vocab > 0 else 0
+
+        return {"progress": round(progress, 2), "total": total_vocab}
+
+
+class User(AbstractUser):
+    avatar = models.ImageField(upload_to='users/%Y/%m')
+    lessons = models.ManyToManyField(Lesson, through='UserLesson')
+
+class UserLesson(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    date_joined = models.DateTimeField(auto_now_add=True)  # Ngày người dùng tham gia bài học
+
+    class Meta:
+        unique_together = ('user', 'lesson')  # Đảm bảo không có bản ghi trùng lặp
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title}"
 
 class Topic(models.Model):
     name = models.CharField(max_length=100)
@@ -27,7 +59,7 @@ class Vocabulary(models.Model):
     pronunciation = models.CharField(max_length=100)
     audio = models.FileField(upload_to='audio/', max_length=100, unique=True)
     example_sentence = models.CharField(max_length=255)
-    stage = models.IntegerField() #giai doan hoc tu vung
+    stage = models.IntegerField()  # giai doan hoc tu vung
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
